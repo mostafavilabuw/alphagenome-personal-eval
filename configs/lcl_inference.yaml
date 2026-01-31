@@ -1,0 +1,56 @@
+# LCL ATAC-seq Inference Configuration
+#
+# This config file defines parameters for running AlphaGenome inference
+# on LCL ATAC-seq peaks.
+#
+# Usage: python scripts/run_inference.py --config configs/lcl_inference.yaml
+
+# Data type
+data_type: peaks
+
+# API Configuration
+# Reads from .env file or environment variable
+api_key: ${ALPHAGENOME_API_KEY}
+
+# Data Paths
+# Replace these with your actual data paths or set environment variables
+data_dir: ${DATA_DIR}/LCL
+vcf_file_path: ${DATA_DIR}/LCL/samples.vcf.gz
+hg38_file_path: ${GENOME_DIR}/hg38.fa
+
+# Tissue-Specific Ontology Terms
+# Uncomment for single-tissue analysis:
+# ontology_terms:
+#   - EFO:0002067  # lymphoblastoid cell line
+
+# Multi-tissue file (optional)
+# tissue_file: ${DATA_DIR}/LCL/tissues.json
+
+# Analysis Parameters
+n_regions: 100              # Number of peaks to analyze
+n_samples: 50               # Number of samples per peak
+window_size: 102400         # Window size around peak center (100KB = 102400bp)
+sequence_length: 100KB      # AlphaGenome sequence length (options: 2KB, 16KB, 100KB, 500KB, 1MB)
+selection_method: variance  # How to select peaks (variance, random, or predixcan)
+random_seed: 42
+
+# Train/Test Split (Optional)
+# split_file_path: ${DATA_DIR}/LCL/train_test_split.json
+# target_sample_set: test_samples  # Options: train_samples, test_samples, val_samples
+
+# Parallel Processing
+enable_parallel: true
+max_workers: 8
+
+# Performance Optimization
+use_genome_dataset: true    # Use shared GenomeDataset for ~50-100x speedup
+
+# Output Configuration
+output_dir: ./results/lcl_inference
+save_predictions: true      # Save raw prediction arrays as NPZ files
+
+# Notes:
+# - For quick testing, reduce n_regions to 10-20
+# - sequence_length determines context window for predictions
+# - Larger sequence_length = more context but slower predictions
+# - save_predictions creates NPZ files for each region (~1MB per peak)

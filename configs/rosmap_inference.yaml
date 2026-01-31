@@ -1,0 +1,61 @@
+# ROSMAP Gene Expression Inference Configuration
+#
+# This config file defines parameters for running AlphaGenome inference
+# on ROSMAP brain gene expression data (dorsolateral prefrontal cortex).
+#
+# Usage: python scripts/run_inference.py --config configs/rosmap_inference.yaml
+
+# Data type
+data_type: genes
+
+# API Configuration
+# Reads from .env file or environment variable
+api_key: ${ALPHAGENOME_API_KEY}
+
+# Data Paths
+# Replace these with your actual data paths or set environment variables
+gene_meta_path: ${DATA_DIR}/ROSMAP/gene-ids-and-positions.tsv
+expr_data_path: ${DATA_DIR}/ROSMAP/expression_data.csv
+sample_lists_path: ${DATA_DIR}/ROSMAP/sub_lists/
+vcf_file_path: ${DATA_DIR}/ROSMAP/samples.vcf.gz
+hg38_file_path: ${GENOME_DIR}/hg38.fa
+
+# Tissue-Specific Ontology Terms
+ontology_terms:
+  - UBERON:0009834  # dorsolateral prefrontal cortex
+
+# Analysis Parameters
+output_type: rna            # Prediction type (rna for gene expression)
+n_regions: 50               # Number of genes to analyze
+selection_method: variance  # Gene selection: 'variance' (default), 'random', 'specific', or 'predixcan'
+target_sample_set: test_subs # Use predefined test samples from sample_lists
+window_size: 102400         # Window size around TSS (100KB = 102400bp)
+sequence_length: 100KB      # AlphaGenome sequence length (options: 2KB, 16KB, 100KB, 500KB, 1MB)
+random_seed: 42
+
+# Performance Optimization
+use_genome_dataset: true    # Use shared GenomeDataset for ~180x speedup
+
+# Gene Selection (optional)
+# For 'specific' selection method, provide a list:
+# selection_method: specific
+# select_genes:
+#   - ENSG00000139618  # BRCA2
+#   - ENSG00000141510  # TP53
+
+# Parallel Processing
+enable_parallel: true
+max_workers: 8
+
+# Output Configuration
+output_dir: ./results/rosmap_inference
+save_predictions: true      # Save raw prediction arrays as NPZ files
+
+# Notes:
+# - selection_method options:
+#   * 'variance': Selects genes with highest expression variance (best for ML, default)
+#   * 'random': Random gene selection (useful for testing)
+#   * 'specific': Use provided gene list via select_genes parameter
+# - target_sample_set can be: train_subs, val_subs, or test_subs
+# - Use test_subs for final evaluation, train_subs for development
+# - For quick testing, reduce n_regions to 10-20

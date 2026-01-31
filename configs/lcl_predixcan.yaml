@@ -1,0 +1,45 @@
+# LCL ATAC-seq PrediXcan Configuration
+#
+# This config file defines parameters for running PrediXcan-style analysis
+# on LCL ATAC-seq peaks: variant extraction + ElasticNet training.
+#
+# Usage: python scripts/run_predixcan.py --config configs/lcl_predixcan.yaml
+
+# Data type
+data_type: peaks
+
+# Data Paths
+# Replace these with your actual data paths or set environment variables
+data_dir: ${DATA_DIR}/LCL
+vcf_file_path: ${DATA_DIR}/LCL/samples.vcf.gz
+
+# Analysis Parameters
+n_regions: 100              # Number of peaks to analyze
+context_window: 100000      # Genomic window for variant extraction (±100kb from TSS)
+min_maf: 0.05               # Minimum minor allele frequency for variant filtering
+selection_method: variance  # How to select peaks (variance or random)
+random_seed: 42
+
+# Train/Test Split
+test_size: 0.2              # Fraction of samples for testing (20%)
+val_size: 0.0               # No separate validation set (use internal CV instead)
+
+# ElasticNet Model Parameters
+l1_ratio: 0.5               # ElasticNet L1 ratio (0.5 = equal L1 and L2 penalty)
+                            # 0.0 = Ridge, 1.0 = Lasso, 0.5 = ElasticNet
+cv_folds: 5                 # Number of cross-validation folds for hyperparameter tuning
+
+# Parallel Processing
+enable_parallel: true
+n_jobs: -1                  # Number of parallel jobs (-1 = use all cores)
+
+# Output Configuration
+output_dir: ./results/lcl_predixcan
+save_models: true           # Save trained ElasticNet models as joblib files
+save_plots: true            # Generate comprehensive visualization plots
+
+# Notes:
+# - context_window determines how far from TSS to extract variants
+# - Larger context_window = more variants but may include noise
+# - min_maf filters rare variants (0.05 = 5% frequency minimum)
+# - For quick testing, reduce n_regions to 10-20
